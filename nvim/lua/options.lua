@@ -21,7 +21,13 @@ vim.opt.clipboard = 'unnamedplus'       -- share clipboard with system
 vim.opt.pumheight = 10                  -- pop up menu height
 vim.opt.hlsearch = true                 -- highlight search results
 
-vim.opt.termguicolors = true            -- set term gui
+vim.cmd [[
+  if exists('+termguicolors')
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    set termguicolors
+  endif
+]]
 
 vim.opt.splitbelow = true               -- always split below
 vim.opt.splitright = true               -- always split right
@@ -34,4 +40,6 @@ vim.opt.sidescrolloff = 8               -- same but to the side
 vim.opt.sidescroll = 1
 vim.cmd 'set whichwrap+=<,>,[,],h,l'    -- wrap scrolling / cursor inputs at end of lines
 vim.cmd [[set iskeyword+=-]]            -- treat asdfwa-ddad-dwad as one word
+
+vim.g.guicursor='n-v-c-sm:block,i-ci-ve:ver25-Cursor,r-cr-o:hor20'
 

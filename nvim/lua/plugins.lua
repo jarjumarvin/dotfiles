@@ -27,6 +27,7 @@ require('packer').startup(function(use)
   use 'morhetz/gruvbox' -- theme
   use 'ayu-theme/ayu-vim' -- theme 2
   use "savq/melange" -- theme 3
+  use 'junegunn/seoul256.vim'
 
   use({
     "catppuccin/nvim",
@@ -37,6 +38,11 @@ require('packer').startup(function(use)
 
   use { 'tpope/vim-fugitive' } -- git support
   use { 'tpope/vim-surround' } -- vim-surround for matching and changing parantheses etc.
+  use { 'Yggdroot/indentLine' }
+
+  use { 'mhinz/vim-startify', config=function()
+    vim.cmd"let g:startify_bookmarks = [ '~/.zshrc', '~/.config/nvim/' ]"
+  end}
 
   use {
     'nvim-lualine/lualine.nvim',
@@ -192,6 +198,7 @@ require('packer').startup(function(use)
     config = function()
       vim.cmd("let g:strip_whitespace_on_save=1")
       vim.cmd("let g:better_whitespace_enabled=1")
+      vim.cmd("let g:strip_whitespace_confirm=0")
     end,
   }
 
@@ -259,6 +266,11 @@ require('packer').startup(function(use)
       require("todo-comments").setup {
       }
     end
+  }
+
+  use {
+    "luukvbaal/stabilize.nvim",
+    config = function() require("stabilize").setup() end
   }
 
   -- LSP & CMP
@@ -481,28 +493,41 @@ require('packer').startup(function(use)
       },
     })
 
-    require("lspconfig")['jedi_language_server'].setup({
-      on_attach = on_attach,
-      capabilities = capabilities,
-    })
+    -- require("lspconfig")['jedi_language_server'].setup({
+    --   on_attach = on_attach,
+    --   capabilities = capabilities,
+    -- })
 
-    --[[ require("lspconfig")['pylsp'].setup({
-      on_attach = on_attach,
-      capabilities = capabilities,
+    require("lspconfig")['pylsp'].setup {
+      filetypes = {"python"},
       settings = {
         pylsp = {
-          enabled = false,
           configurationSources = {"flake8"},
           plugins = {
-            pylint = { enabled = false },
-            flake8 = { enabled = true },
-            pycodestyle = { enabled = false },
-            pyflakes = { enabled = false },
+            jedi_completion = {enabled = true},
+            jedi_hover = {enabled = true},
+            jedi_references = {enabled = true},
+            jedi_signature_help = {enabled = true},
+            jedi_symbols = {enabled = true, all_scopes = true},
+            pycodestyle = {enabled = false},
+            flake8 = {
+              enabled = true,
+              ignore = {},
+              maxLineLength = 160
+            },
+            mypy = {enabled = false},
+            isort = {enabled = false},
+            yapf = {enabled = false},
+            pylint = {enabled = false},
+            pydocstyle = {enabled = false},
+            mccabe = {enabled = false},
+            preload = {enabled = false},
+            rope_completion = {enabled = false}
           }
         }
-      }
-    }) ]]
-
+      },
+      on_attach = on_attach
+    }
   end
   }
   use { "dstein64/vim-startuptime" }

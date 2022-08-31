@@ -64,12 +64,13 @@ source /Users/marvinjarju/.rvm/gems/ruby-3.0.0/gems/colorls-1.4.4/lib/tab_comple
 
 # aliases
 alias tree='git log --graph --pretty=oneline --abbrev-commit'
-alias lc='colorls -lA --sd'
 alias sweep="find . -name .DS_Store -type f -delete ; find . -type d | xargs dot_clean -m"
-
-alias ls="colorls"
-
 alias f="open ."
+
+alias l='exa --icons --group-directories-first'
+alias ls='exa --icons --long --modified --icons --header --group-directories-first'
+alias ls='exa --icons --long --modified --icons --header --tree -L 2 --group-directories-first'
+alias ls='exa --icons --long --modified --icons --git --header --group-directories-first'
 
 alias edu="cd ~/Documents/edu"
 
@@ -129,3 +130,4 @@ fi
 alias loaddb="gupdatedb --localpaths=$HOME --prunepaths=/Volumes --output=$HOME/locatedb"
 
 fetch
+export PATH=$PATH:/Users/marvinjarju/.spicetify

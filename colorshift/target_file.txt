@@ -1,0 +1,1 @@
+/Users/jarjumarvin/.config/colorshift/darken.sh

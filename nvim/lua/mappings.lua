@@ -53,9 +53,7 @@ keymap('t', 'jk', '<ESC>', opts)
 -- Visual Mode
 ---- Stay in indent mode
 keymap('v', '<', '<gv', opts)
-keymap('v', '<', '<gv', opts)
-keymap('v', '<Tab>', '>gv', opts)
-keymap('v', 'S-<Tab>', '<gv', opts)
+keymap('v', '>', '>gv', opts)
 
 keymap('v', 'p', '"_dP', opts)
 

@@ -13,7 +13,7 @@ vim.opt.softtabstop = 2                 -- 2 spaces tab
 vim.opt.number = true                   -- use line numbers
 vim.opt.relativenumber = true           -- relative line numbers
 
-vim.opt.signcolumn = 'number'
+vim.opt.signcolumn = 'yes'
 
 -- vim.opt.cmdheight = 2
 vim.opt.fileencoding = 'utf-8'          -- file encoding to utf8

@@ -13,9 +13,15 @@
 
 -- MELANGE
 --
-vim.cmd [[ set background=light ]]
 vim.cmd[[colorscheme melange]]
 
+vim.cmd[[
+  if !empty($CONSOLE_THEME)
+      let &background=$CONSOLE_THEME
+  else
+      set background=dark
+  endif
+]]
 
 -- CATPPUCCIN
 --

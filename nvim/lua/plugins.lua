@@ -37,6 +37,7 @@ require('packer').startup(function(use)
   use { 'ellisonleao/glow.nvim', branch = 'main' }
 
   use { 'tpope/vim-fugitive' } -- git support
+  use { 'airblade/vim-gitgutter' }
   use { 'tpope/vim-surround' } -- vim-surround for matching and changing parantheses etc.
   use { 'Yggdroot/indentLine' }
 
@@ -218,12 +219,12 @@ require('packer').startup(function(use)
       size = 20,
       open_mapping = [[<c-\>]],
       hide_numbers = true,
+      direction = 'float',
       shade_filetypes = {},
-      shade_terminals = true,
+      shade_terminals = false,
       start_in_insert = true,
       insert_mappings = true,
       persist_size = true,
-      direction = 'float',
       close_on_exit = true,
       shell = vim.o.shell,
       float_opts = {

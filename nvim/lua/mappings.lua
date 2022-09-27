@@ -35,11 +35,21 @@ keymap('v', '<A-h>', ":MoveHBlock(-1)<CR>", opts)
 keymap('n', '<leader>e', ':NvimTreeToggle<CR>', opts) -- toggle nvimtree
 keymap('n', '<leader>t', ':TagbarToggle<CR>', opts) -- toggle the tagbar
 
-keymap('n', '<leader><leader>', ':Files <CR>', opts) -- find files
+keymap('n', '<leader><leader>', ':Files <CR>', opts) -- find file
 keymap('n', '<leader>fg', ':Telescope live_grep<CR>', opts) -- live_grep
 keymap('n', '<leader>fr', ':Telescope git_files<CR>', opts) -- git files
 keymap('n', '<leader>fb', ':Telescope buffers<CR>', opts) -- search buffers
 keymap('n', '<leader>z', ':Telescope zoxide list<CR>', opts) -- search buffers
+
+----- COPY PASTE
+keymap('v', '<leader>y', '+y', opts)
+keymap('n', '<leader>y', '+y', opts)
+keymap('n', '<leader>Y', '+yg_', opts)
+
+keymap('n', '<leader>p', '+p', opts)
+keymap('n', '<leader>P', '+P', opts)
+keymap('v', '<leader>p', '+p', opts)
+keymap('v', '<leader>P', '+P', opts)
 
 ---- Buffer Navigation
 keymap('n', '<S-l>', '<Plug>(CybuPrev)', opts)

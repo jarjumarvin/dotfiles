@@ -39,7 +39,15 @@ require('packer').startup(function(use)
   use { 'tpope/vim-fugitive' } -- git support
   use { 'airblade/vim-gitgutter' }
   use { 'tpope/vim-surround' } -- vim-surround for matching and changing parantheses etc.
-  use { 'Yggdroot/indentLine' }
+
+  use { "lukas-reineke/indent-blankline.nvim", config=function()
+    vim.g.indent_blankline_char = '¦'
+    require("indent_blankline").setup {
+      -- for example, context is off by default, use this to turn it on
+      show_current_context = true,
+    }
+  end}
+
 
   use { 'mhinz/vim-startify', config=function()
     vim.cmd"let g:startify_bookmarks = [ '~/.zshrc', '~/.config/nvim/' ]"
@@ -55,40 +63,7 @@ require('packer').startup(function(use)
           lualine_a = { 'mode' },
           lualine_b = { 'branch', 'diff', 'diagnostics' },
           lualine_c = {},
-          lualine_x = {
-            {
-              'buffers',
-              show_filename_only = true, -- Shows shortened relative path when set to false.
-              hide_filename_extension = false, -- Hide filename extension when set to true.
-              show_modified_status = true, -- Shows indicator when the buffer is modified.
-
-              mode = 0, -- 0: Shows buffer name
-              -- 1: Shows buffer index
-              -- 2: Shows buffer name + buffer index
-              -- 3: Shows buffer number
-              -- 4: Shows buffer name + buffer number
-
-              max_length = vim.o.columns * 2 / 3, -- Maximum width of buffers component,
-              -- it can also be a function that returns
-              -- the value of `max_length` dynamically.
-              filetype_names = {
-                TelescopePrompt = 'Telescope',
-                packer = 'Packer',
-                fzf = 'FZF',
-              }, -- Shows specific buffer name for that filetype ( { `filetype` = `buffer_name`, ... } )
-
-              buffers_color = {
-                -- Same values as the general color option can be used here.
-                active = 'lualine_x_active', -- Color for active buffer.
-                inactive = 'lualine_x_inactive', -- Color for inactive buffer.
-              },
-              symbols = {
-                modified = '●', -- Text to show when the buffer is modified
-                alternate_file = '~ ', -- Text to show to identify the alternate file
-                directory = '', -- Text to show when the buffer is a directory
-              },
-            }
-          },
+          lualine_x = {},
           lualine_y = {},
           lualine_z = { 'location' }
         },
@@ -212,6 +187,7 @@ require('packer').startup(function(use)
 
   use 'fedepujol/move.nvim'
 
+  use { 'kyazdani42/nvim-web-devicons' }
   use { 'kyazdani42/nvim-tree.lua', requires = { 'kyazdani42/nvim-web-devicons' } }
 
   use { "akinsho/toggleterm.nvim", tag = 'v1.*', config = function()
@@ -236,13 +212,35 @@ require('packer').startup(function(use)
         },
       },
     })
+
+    local Terminal  = require('toggleterm.terminal').Terminal
+    local lazygit = Terminal:new({ cmd = "lazygit", hidden = true, direction = 'float' })
+
+    function _lazygit_toggle()
+      lazygit:toggle()
+    end
+
+    vim.api.nvim_set_keymap("n", "<leader>G", "<cmd>lua _lazygit_toggle()<CR>", {noremap = true, silent = true})
   end }
 
+  -- use({
+  --   "ghillb/cybu.nvim",
+  --   -- branch = "v1.x", -- won't receive breaking changes
+  --   branch = "main", -- timely updates
+  --   config = function()
+  --     local ok, cybu = pcall(require, "cybu")
+  --     if not ok then
+  --       return
+  --     end
+  --     cybu.setup()
+  --   end,
+  -- })
+  --
   use({
     "ghillb/cybu.nvim",
-    branch = "v1.x", -- won't receive breaking changes
-    -- branch = "main", -- timely updates
-    requires = { "kyazdani42/nvim-web-devicons" }, --optional
+    branch = "main", -- timely updates
+    -- branch = "v1.x", -- won't receive breaking changes
+    requires = { "kyazdani42/nvim-web-devicons", "nvim-lua/plenary.nvim"}, -- optional for icon support
     config = function()
       local ok, cybu = pcall(require, "cybu")
       if not ok then
@@ -282,6 +280,7 @@ require('packer').startup(function(use)
       text = { spinner = 'noise' }
     }
   end }
+
   use { "neovim/nvim-lspconfig" }
 
   use { 'L3MON4D3/LuaSnip', config = function()
@@ -356,8 +355,8 @@ require('packer').startup(function(use)
         end
       },
       window = {
-        -- completion = cmp.config.window.bordered(),
-        -- documentation = cmp.config.window.bordered(),
+        completion = cmp.config.window.bordered(),
+        documentation = cmp.config.window.bordered(),
       },
       mapping = cmp.mapping.preset.insert({
         ['<C-k>'] = cmp.mapping.select_prev_item(),
@@ -401,32 +400,6 @@ require('packer').startup(function(use)
       })
     })
 
-    -- Set configuration for specific filetype.
-    --[[ cmp.setup.filetype('gitcommit', {
-      sources = cmp.config.sources({
-        { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
-      }, {
-        { name = 'buffer' },
-      })
-    })
-    ]]
-    --[[ -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
-    cmp.setup.cmdline('/', {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = {
-        { name = 'buffer' }
-      }
-    }) ]]
-
-    --[[ -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-    cmp.setup.cmdline(':', {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = cmp.config.sources({
-        { name = 'path' }
-      }, {
-        { name = 'cmdline' }
-      })
-    }) ]]
     local cmp_autopairs = require('nvim-autopairs.completion.cmp')
     cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done({ map_char = { tex = '' } }))
 
@@ -464,6 +437,7 @@ require('packer').startup(function(use)
       vim.keymap.set('n', 'gr', ':Telescope lsp_references theme=dropdown<cr>', bufopts)
       vim.keymap.set('n', '<leader>f', vim.lsp.buf.formatting, bufopts)
 
+      vim.keymap.set('n', '<leader>S', ':Telescope lsp_dynamic_workspace_symbols theme=dropdown<cr>', bufopts)
       vim.keymap.set('n', '<leader>s', ':Telescope lsp_document_symbols theme=dropdown<cr>')
     end
 
@@ -499,36 +473,52 @@ require('packer').startup(function(use)
     --   capabilities = capabilities,
     -- })
 
-    require("lspconfig")['pylsp'].setup {
+    -- require("lspconfig")['pylsp'].setup {
+    --   filetypes = {"python"},
+    --   settings = {
+    --     pylsp = {
+    --       configurationSources = {"flake8"},
+    --       plugins = {
+    --         jedi_completion = {enabled = true},
+    --         jedi_hover = {enabled = true},
+    --         jedi_references = {enabled = true},
+    --         jedi_signature_help = {enabled = true},
+    --         jedi_symbols = {enabled = true, all_scopes = true},
+    --         pycodestyle = {enabled = false},
+    --         flake8 = {
+    --           enabled = true,
+    --           ignore = {},
+    --           maxLineLength = 160
+    --         },
+    --         mypy = {enabled = false},
+    --         isort = {enabled = false},
+    --         yapf = {enabled = false},
+    --         pylint = {enabled = false},
+    --         pydocstyle = {enabled = false},
+    --         mccabe = {enabled = false},
+    --         preload = {enabled = false},
+    --         rope_completion = {enabled = false}
+    --       }
+    --     }
+    --   },
+    --   on_attach = on_attach
+    -- }
+
+    require("lspconfig")['pyright'].setup {
       filetypes = {"python"},
+      single_file_support = true,
       settings = {
-        pylsp = {
-          configurationSources = {"flake8"},
-          plugins = {
-            jedi_completion = {enabled = true},
-            jedi_hover = {enabled = true},
-            jedi_references = {enabled = true},
-            jedi_signature_help = {enabled = true},
-            jedi_symbols = {enabled = true, all_scopes = true},
-            pycodestyle = {enabled = false},
-            flake8 = {
-              enabled = true,
-              ignore = {},
-              maxLineLength = 160
-            },
-            mypy = {enabled = false},
-            isort = {enabled = false},
-            yapf = {enabled = false},
-            pylint = {enabled = false},
-            pydocstyle = {enabled = false},
-            mccabe = {enabled = false},
-            preload = {enabled = false},
-            rope_completion = {enabled = false}
+        python = {
+          analysis = {
+            autoSearchPaths = true,
+            diagnosticMode = "workspace",
+            useLibraryCodeForTypes = true
           }
         }
       },
       on_attach = on_attach
     }
+
   end
   }
   use { "dstein64/vim-startuptime" }

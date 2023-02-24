@@ -32,7 +32,8 @@ keymap('v', '<A-l>', ":MoveHBlock(1)<CR>", opts)
 keymap('v', '<A-h>', ":MoveHBlock(-1)<CR>", opts)
 
 ---- Leader Keys
-keymap('n', '<leader>e', ':NvimTreeToggle<CR>', opts) -- toggle nvimtree
+keymap('n', '<leader>e', ':NeoTreeShowToggle<CR>', opts) -- toggle Neotree
+keymap('n', '\\', ':NeoTreeShowToggle<CR>', opts) -- toggle Neotree
 keymap('n', '<leader>t', ':TagbarToggle<CR>', opts) -- toggle the tagbar
 
 keymap('n', '<leader><leader>', ':Files <CR>', opts) -- find file
@@ -54,6 +55,7 @@ keymap('v', '<leader>P', '+P', opts)
 ---- Buffer Navigation
 keymap('n', '<S-l>', '<Plug>(CybuPrev)', opts)
 keymap('n', '<S-h>', '<Plug>(CybuNext)', opts)
+keymap('n', '<tab>', ':Telescope buffers<cr>', opts)
 
 -- Insert Mode
 ---- use j then k fast to enter normal mode

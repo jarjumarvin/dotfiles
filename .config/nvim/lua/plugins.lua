@@ -37,8 +37,27 @@ require('packer').startup(function(use)
   use { 'ellisonleao/glow.nvim', branch = 'main' }
 
   use { 'tpope/vim-fugitive' } -- git support
+  use { 'airblade/vim-gitgutter' }
   use { 'tpope/vim-surround' } -- vim-surround for matching and changing parantheses etc.
-  use { 'Yggdroot/indentLine' }
+
+  use { "lukas-reineke/indent-blankline.nvim", config=function()
+    vim.g.indent_blankline_char = '¦'
+    require("indent_blankline").setup {
+      -- for example, context is off by default, use this to turn it on
+      show_current_context = true,
+    }
+  end}
+
+  -- copilot
+  use {
+    "zbirenbaum/copilot.lua",
+    event = "VimEnter",
+    config = function()
+      vim.defer_fn(function()
+        require("copilot").setup()
+      end, 100)
+    end,
+  }
 
   use { 'mhinz/vim-startify', config=function()
     vim.cmd"let g:startify_bookmarks = [ '~/.zshrc', '~/.config/nvim/' ]"
@@ -49,7 +68,7 @@ require('packer').startup(function(use)
     requires = { 'kyazdani42/nvim-web-devicons', opt = true },
     config = { function()
       require('lualine').setup({
-        options = { theme = 'auto', section_separators = '', component_separators = '' },
+        options = { theme = 'auto', section_separators = '', component_separators = '', disabled_filetypes = { statusline = {"neo-tree"} } },
         sections = {
           lualine_a = { 'mode' },
           lualine_b = { 'branch', 'diff', 'diagnostics' },
@@ -58,7 +77,7 @@ require('packer').startup(function(use)
           lualine_y = {},
           lualine_z = { 'location' }
         },
-        extensions = { 'nvim-tree', 'fzf' }
+        extensions = { 'fzf' }
       })
     end }
 
@@ -150,6 +169,18 @@ require('packer').startup(function(use)
             "--smart-case",
             "--trim" -- add this value
           }
+        },
+        pickers = {
+          buffers = {
+            mappings = {
+              i = {
+                ["<c-d>"] = require("telescope.actions").delete_buffer,
+              },
+              n = {
+                ["<c-d>"] = require("telescope.actions").delete_buffer,
+              },
+            }
+          }
         }
       })
       require('telescope').load_extension('fzf') -- native  fuzzy support
@@ -178,19 +209,19 @@ require('packer').startup(function(use)
 
   use 'fedepujol/move.nvim'
 
-  use { 'kyazdani42/nvim-tree.lua', requires = { 'kyazdani42/nvim-web-devicons' } }
+  use { 'kyazdani42/nvim-web-devicons' }
 
   use { "akinsho/toggleterm.nvim", tag = 'v1.*', config = function()
     require("toggleterm").setup({
       size = 20,
       open_mapping = [[<c-\>]],
       hide_numbers = true,
+      direction = 'float',
       shade_filetypes = {},
-      shade_terminals = true,
+      shade_terminals = false,
       start_in_insert = true,
       insert_mappings = true,
       persist_size = true,
-      direction = 'float',
       close_on_exit = true,
       shell = vim.o.shell,
       float_opts = {
@@ -202,13 +233,35 @@ require('packer').startup(function(use)
         },
       },
     })
+
+    local Terminal  = require('toggleterm.terminal').Terminal
+    local lazygit = Terminal:new({ cmd = "lazygit", hidden = true, direction = 'float' })
+
+    function _lazygit_toggle()
+      lazygit:toggle()
+    end
+
+    vim.api.nvim_set_keymap("n", "<leader>G", "<cmd>lua _lazygit_toggle()<CR>", {noremap = true, silent = true})
   end }
 
+  -- use({
+  --   "ghillb/cybu.nvim",
+  --   -- branch = "v1.x", -- won't receive breaking changes
+  --   branch = "main", -- timely updates
+  --   config = function()
+  --     local ok, cybu = pcall(require, "cybu")
+  --     if not ok then
+  --       return
+  --     end
+  --     cybu.setup()
+  --   end,
+  -- })
+  --
   use({
     "ghillb/cybu.nvim",
-    branch = "v1.x", -- won't receive breaking changes
-    -- branch = "main", -- timely updates
-    requires = { "kyazdani42/nvim-web-devicons" }, --optional
+    branch = "main", -- timely updates
+    -- branch = "v1.x", -- won't receive breaking changes
+    requires = { "kyazdani42/nvim-web-devicons", "nvim-lua/plenary.nvim"}, -- optional for icon support
     config = function()
       local ok, cybu = pcall(require, "cybu")
       if not ok then
@@ -248,6 +301,7 @@ require('packer').startup(function(use)
       text = { spinner = 'noise' }
     }
   end }
+
   use { "neovim/nvim-lspconfig" }
 
   use { 'L3MON4D3/LuaSnip', config = function()
@@ -260,6 +314,16 @@ require('packer').startup(function(use)
   use { 'hrsh7th/cmp-buffer' }
   use { 'hrsh7th/cmp-path' }
   use { 'saadparwaiz1/cmp_luasnip' }
+
+  use {
+    "zbirenbaum/copilot-cmp",
+    after = { "copilot.lua" },
+    config = function ()
+      require("copilot_cmp").setup()
+    end
+  }
+
+  use { "tamarin-prover/editors" }
 
   use { 'hrsh7th/nvim-cmp', config = function()
     local has_words_before = function()
@@ -322,8 +386,8 @@ require('packer').startup(function(use)
         end
       },
       window = {
-        -- completion = cmp.config.window.bordered(),
-        -- documentation = cmp.config.window.bordered(),
+        completion = cmp.config.window.bordered(),
+        documentation = cmp.config.window.bordered(),
       },
       mapping = cmp.mapping.preset.insert({
         ['<C-k>'] = cmp.mapping.select_prev_item(),
@@ -360,6 +424,7 @@ require('packer').startup(function(use)
         end, { 'i', 's' }),
       }),
       sources = cmp.config.sources({
+        { name = 'copilot' },
         { name = 'nvim_lsp' },
         { name = 'luasnip' },
         { name = 'buffer' },
@@ -367,32 +432,6 @@ require('packer').startup(function(use)
       })
     })
 
-    -- Set configuration for specific filetype.
-    --[[ cmp.setup.filetype('gitcommit', {
-      sources = cmp.config.sources({
-        { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
-      }, {
-        { name = 'buffer' },
-      })
-    })
-    ]]
-    --[[ -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
-    cmp.setup.cmdline('/', {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = {
-        { name = 'buffer' }
-      }
-    }) ]]
-
-    --[[ -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-    cmp.setup.cmdline(':', {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = cmp.config.sources({
-        { name = 'path' }
-      }, {
-        { name = 'cmdline' }
-      })
-    }) ]]
     local cmp_autopairs = require('nvim-autopairs.completion.cmp')
     cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done({ map_char = { tex = '' } }))
 
@@ -416,6 +455,8 @@ require('packer').startup(function(use)
       local bufopts = { noremap = true, silent = true, buffer = bufnr }
       vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
       vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+      vim.keymap.set('n', 'gds', ":belowright split | lua vim.lsp.buf.definition()<cr>", bufopts)
+      vim.keymap.set('n', 'gdv', ":vsplit | lua vim.lsp.buf.definition()<cr>", bufopts)
       vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, bufopts)
       vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
       vim.keymap.set('n', 'gi', ':Telescope lsp_implementations theme=dropdown<cr>', bufopts)
@@ -430,12 +471,14 @@ require('packer').startup(function(use)
       vim.keymap.set('n', 'gr', ':Telescope lsp_references theme=dropdown<cr>', bufopts)
       vim.keymap.set('n', '<leader>f', vim.lsp.buf.formatting, bufopts)
 
-      vim.keymap.set('n', '<leader>s', ':Telescope lsp_document_symbols theme=dropdown<cr>')
+      vim.keymap.set('n', '<leader>S', ':Telescope lsp_dynamic_workspace_symbols theme=dropdown<cr>', bufopts)
+      vim.keymap.set('n', '<leader>s', ':Telescope lsp_document_symbols theme=dropdown<cr>', bufopts)
+      vim.keymap.set('n', '<leader>ii', ':PyrightOrganizeImports<cr>', bufopts)
     end
 
-    local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+    local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
 
-    require("lspconfig")['sumneko_lua'].setup({
+    require("lspconfig")['lua_ls'].setup({
       on_attach = on_attach,
       capabilities = capabilities,
       settings = {
@@ -465,47 +508,68 @@ require('packer').startup(function(use)
     --   capabilities = capabilities,
     -- })
 
-    require("lspconfig")['pylsp'].setup {
+    require("lspconfig")['pyright'].setup {
       filetypes = {"python"},
+      single_file_support = true,
       settings = {
-        pylsp = {
-          configurationSources = {"flake8"},
-          plugins = {
-            jedi_completion = {enabled = true},
-            jedi_hover = {enabled = true},
-            jedi_references = {enabled = true},
-            jedi_signature_help = {enabled = true},
-            jedi_symbols = {enabled = true, all_scopes = true},
-            pycodestyle = {enabled = false},
-            flake8 = {
-              enabled = true,
-              ignore = {},
-              maxLineLength = 160
-            },
-            mypy = {enabled = false},
-            isort = {enabled = false},
-            yapf = {enabled = false},
-            pylint = {enabled = false},
-            pydocstyle = {enabled = false},
-            mccabe = {enabled = false},
-            preload = {enabled = false},
-            rope_completion = {enabled = false}
+        python = {
+          analysis = {
+            autoImportCompletions = true,
+            autoSearchPaths = true,
+            diagnosticMode = "workspace",
+            useLibraryCodeForTypes = true
           }
         }
       },
       on_attach = on_attach
     }
+
   end
   }
-  use { "dstein64/vim-startuptime" }
 
+  use {
+    "nvim-neo-tree/neo-tree.nvim",
+    branch = "v2.x",
+    requires = {
+      "nvim-lua/plenary.nvim",
+      "kyazdani42/nvim-web-devicons", -- not strictly required, but recommended
+      "MunifTanjim/nui.nvim",
+    },
+    config=function ()
+      require("neo-tree").setup({
+        popup_border_style = "rounded",
+        enable_git_status = true,
+        enable_diagnostics = false,
+        default_component_configs = {
+          name = {
+            use_git_status_colors = true
+          },
+          git_status = {
+            symbols = {
+              -- Change type
+              added     = "", -- or "✚", but this is redundant info if you use git_status_colors on the name
+              modified  = "", -- or "", but this is redundant info if you use git_status_colors on the name
+              deleted   = "✖",-- this can only be used in the git_status source
+              renamed   = "",-- this can only be used in the git_status source
+              -- Status type
+              untracked = "",
+              ignored   = "",
+              unstaged  = "",
+              staged    = "",
+              conflict  = "",
+            }
+          }
+        },
+        filesystem = {
+          follow_current_file = true,
+          use_libuv_file_watcher = true,
+          hide_gitignored = false,
+          hide_hidden = false
+        }
+      })
+    end
+  }
   if PACKER_BOOTSTRAP then
     require('packer').sync()
   end
 end)
-
-require('nvim-tree').setup {
-  update_cwd = true,
-  create_in_closed_folder = true,
-  view = { hide_root_folder = true, adaptive_size = true }
-}

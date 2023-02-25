@@ -32,18 +32,30 @@ keymap('v', '<A-l>', ":MoveHBlock(1)<CR>", opts)
 keymap('v', '<A-h>', ":MoveHBlock(-1)<CR>", opts)
 
 ---- Leader Keys
-keymap('n', '<leader>e', ':NvimTreeToggle<CR>', opts) -- toggle nvimtree
+keymap('n', '<leader>e', ':NeoTreeShowToggle<CR>', opts) -- toggle Neotree
+keymap('n', '\\', ':NeoTreeShowToggle<CR>', opts) -- toggle Neotree
 keymap('n', '<leader>t', ':TagbarToggle<CR>', opts) -- toggle the tagbar
 
-keymap('n', '<leader><leader>', ':Files <CR>', opts) -- find files
+keymap('n', '<leader><leader>', ':Files <CR>', opts) -- find file
 keymap('n', '<leader>fg', ':Telescope live_grep<CR>', opts) -- live_grep
 keymap('n', '<leader>fr', ':Telescope git_files<CR>', opts) -- git files
 keymap('n', '<leader>fb', ':Telescope buffers<CR>', opts) -- search buffers
 keymap('n', '<leader>z', ':Telescope zoxide list<CR>', opts) -- search buffers
 
+----- COPY PASTE
+keymap('v', '<leader>y', '+y', opts)
+keymap('n', '<leader>y', '+y', opts)
+keymap('n', '<leader>Y', '+yg_', opts)
+
+keymap('n', '<leader>p', '+p', opts)
+keymap('n', '<leader>P', '+P', opts)
+keymap('v', '<leader>p', '+p', opts)
+keymap('v', '<leader>P', '+P', opts)
+
 ---- Buffer Navigation
 keymap('n', '<S-l>', '<Plug>(CybuPrev)', opts)
 keymap('n', '<S-h>', '<Plug>(CybuNext)', opts)
+keymap('n', '<tab>', ':Telescope buffers<cr>', opts)
 
 -- Insert Mode
 ---- use j then k fast to enter normal mode
@@ -53,9 +65,7 @@ keymap('t', 'jk', '<ESC>', opts)
 -- Visual Mode
 ---- Stay in indent mode
 keymap('v', '<', '<gv', opts)
-keymap('v', '<', '<gv', opts)
-keymap('v', '<Tab>', '>gv', opts)
-keymap('v', 'S-<Tab>', '<gv', opts)
+keymap('v', '>', '>gv', opts)
 
 keymap('v', 'p', '"_dP', opts)
 
